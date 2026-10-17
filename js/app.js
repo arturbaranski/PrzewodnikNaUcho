@@ -313,10 +313,15 @@ function renderNow() {
 
 function renderWelcome() {
   const destination = currentDestination();
-  const samples = (destination ? destination.samples : [])
-    .map(placeById)
-    .filter(Boolean);
   const lede = destination?.lede || "Trzymaj aplikację otwartą na spacerze. Przy zabytku przewodnik sam przeczyta historię po polsku.";
+  const places = currentPlaces();
+  const body = destination
+    ? destination.areas.map((area) => {
+        const items = places.filter((place) => place.area === area);
+        if (!items.length) return "";
+        return `<div class="group">${esc(area)}</div>${items.map(placeRow).join("")}`;
+      }).join("")
+    : "";
   return `
     ${!secureContext() ? insecureBanner() : ""}
     <section class="hero">
@@ -326,9 +331,8 @@ function renderWelcome() {
       <button class="secondary" type="button" data-action="test-voice">Sprawdź polski głos</button>
     </section>
     ${voiceWarning()}
-    <div class="samples">
-      ${samples.map((place) => `<button type="button" data-action="open" data-id="${place.id}"><b>${esc(place.name)}</b><span>${esc(place.area)} · posłuchaj próbki</span></button>`).join("")}
-    </div>
+    <p class="meta">${places.length} miejsc. Możesz odsłuchać każde z listy albo włączyć GPS.</p>
+    ${body}
   `;
 }
 
@@ -485,9 +489,10 @@ function showMap() {
   }
   if (!state.map) {
     state.map = L.map(node, { zoomControl: true });
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      attribution: "&copy; OpenStreetMap &copy; CARTO",
+      subdomains: "abc",
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(state.map);
     const colors = {
       malta: "#8d3d24",

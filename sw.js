@@ -1,4 +1,4 @@
-const CACHE = "przewodnik-na-ucho-v3";
+const CACHE = "przewodnik-na-ucho-v5";
 const TILES = "przewodnik-na-ucho-tiles-v1";
 const ASSETS = [
   "./",
@@ -49,7 +49,7 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
 
-  if (url.hostname.endsWith("basemaps.cartocdn.com")) {
+  if (url.hostname === "tile.openstreetmap.org" || url.hostname.endsWith(".tile.openstreetmap.org")) {
     event.respondWith((async () => {
       const cache = await caches.open(TILES);
       const cached = await cache.match(request);
