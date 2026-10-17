@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Przewodnik na ucho",
   "short_name": "Na ucho",
-  "description": "Polski audioprzewodnik GPS. Malta, Łódź i kolejne kierunki.",
+  "description": "Polski audioprzewodnik GPS. Malta, Łódź, Szczecin i kolejne kierunki.",
   "lang": "pl",
   "start_url": "./index.html",
   "scope": "./",

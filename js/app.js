@@ -107,9 +107,9 @@ function normalize(value) {
 }
 
 function islandClass(island) {
-  if (island === "gozo" || island === "fabryki") return "gozo";
-  if (island === "comino" || island === "deptak") return "comino";
-  if (island === "miasto") return "miasto";
+  if (island === "gozo" || island === "fabryki" || island === "parki") return "gozo";
+  if (island === "comino" || island === "deptak" || island === "stare") return "comino";
+  if (island === "miasto" || island === "waly") return "miasto";
   if (island === "pamiec") return "pamiec";
   return "malta";
 }
@@ -316,9 +316,7 @@ function renderWelcome() {
   const samples = (destination ? destination.samples : [])
     .map(placeById)
     .filter(Boolean);
-  const lede = destination && destination.id === "lodz"
-    ? "Trzymaj aplikację otwartą na spacerze. Przy ulicy, fabryce albo miejscu pamięci sama przeczyta historię po polsku."
-    : "Trzymaj aplikację otwartą na spacerze. Przy zabytku, świątyni albo zatoce sama przeczyta historię po polsku. Z listy możesz posłuchać też ręcznie.";
+  const lede = destination?.lede || "Trzymaj aplikację otwartą na spacerze. Przy zabytku przewodnik sam przeczyta historię po polsku.";
   return `
     ${!secureContext() ? insecureBanner() : ""}
     <section class="hero">
@@ -439,7 +437,7 @@ function renderSettings() {
     <button class="secondary" type="button" data-action="install">Dodaj do ekranu głównego</button>
     <div class="help" style="margin-top:16px">
       <p>Lokalizacja zostaje w telefonie. Aplikacja nie wysyła pozycji na żaden serwer. Mapa bierze kafelki z internetu.</p>
-      <p>Godziny, bilety i wejścia zmieniają się z sezonu na sezon. Przy hipogeum w Paoli rezerwacja z wyprzedzeniem jest obowiązkowa. W Łodzi cmentarz żydowski i część muzeów mają własne godziny bram.</p>
+      <p>Godziny, bilety i wejścia zmieniają się z sezonu na sezon. Przy hipogeum w Paoli rezerwacja z wyprzedzeniem jest obowiązkowa. W Łodzi cmentarz żydowski i część muzeów mają własne godziny bram. W Szczecinie tak samo Przełomy, willa Lentza i cmentarz centralny. Nad Jeziorem Szmaragdowym nie wchodź do wody.</p>
       <p>Przed wyjazdem otwórz przewodnik raz przy Wi-Fi, odtwórz zdanie próbne i dodaj ikonę na pulpit. Opowieści działają potem bez sieci. Mapa w nowym rejonie potrzebuje internetu za pierwszym razem.</p>
     </div>
   `;
@@ -499,6 +497,9 @@ function showMap() {
       fabryki: "#8d3d24",
       miasto: "#1e5364",
       pamiec: "#3d3a34",
+      stare: "#8a6a28",
+      waly: "#1e5364",
+      parki: "#1d6b58",
     };
     for (const place of currentPlaces()) {
       const marker = L.circleMarker([place.lat, place.lng], {
