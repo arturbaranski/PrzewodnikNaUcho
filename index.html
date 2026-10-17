@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#143642">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Polski audioprzewodnik GPS. Wybierz kierunek, a telefon opowie, gdy podejdziesz.">
+  <title>Przewodnik na ucho</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <rect x="2" y="6" width="44" height="36" rx="10" fill="#f3eee6"/>
+          <path d="M13 34 V21.5 a11 11 0 0 1 22 0 V34" fill="none" stroke="#143642" stroke-width="2.6" stroke-linecap="round"/>
+          <circle cx="24" cy="21" r="2.2" fill="#8d3d24"/>
+        </svg>
+        <div>
+          <h1 id="brand-title">Przewodnik na ucho</h1>
+          <p id="brand-sub">Wybierz kierunek</p>
+        </div>
+        <button type="button" class="brand-switch" id="change-destination" data-action="change-destination" hidden>Zmień</button>
+      </div>
+      <div id="status" class="status" aria-live="polite"><span><i class="dot"></i>GPS wyłączony</span><span></span></div>
+    </header>
+    <main id="main"></main>
+    <div class="dock">
+      <div id="player" class="player" hidden></div>
+      <nav>
+        <button type="button" data-action="nav" data-view="now">Teraz</button>
+        <button type="button" data-action="nav" data-view="list">Miejsca</button>
+        <button type="button" data-action="nav" data-view="map">Mapa</button>
+        <button type="button" data-action="nav" data-view="settings">Ustawienia</button>
+      </nav>
+    </div>
+  </div>
+  <div id="sheet" class="sheet" hidden></div>
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
