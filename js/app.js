@@ -1,8 +1,10 @@
 import { DESTINATIONS } from "./destinations.js";
 import { chooseTarget, nearestPlace, formatDistance, canRepeat, distanceMeters } from "./engine.js";
 
-const SETTINGS_KEY = "malta-na-ucho-settings";
-const SPOKEN_KEY = "malta-na-ucho-spoken";
+const SETTINGS_KEY = "przewodnik-na-ucho-settings";
+const SPOKEN_KEY = "przewodnik-na-ucho-spoken";
+const LEGACY_SETTINGS_KEY = "malta-na-ucho-settings";
+const LEGACY_SPOKEN_KEY = "malta-na-ucho-spoken";
 
 const state = {
   view: "now",
@@ -45,7 +47,8 @@ function loadSettings() {
     destination: "",
   };
   try {
-    const saved = { ...defaults, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}") };
+    const raw = localStorage.getItem(SETTINGS_KEY) || localStorage.getItem(LEGACY_SETTINGS_KEY);
+    const saved = { ...defaults, ...JSON.parse(raw || "{}") };
     if (saved.rate === 0.92) saved.rate = 1;
     return saved;
   } catch {
@@ -55,11 +58,13 @@ function loadSettings() {
 
 function saveSettings() {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  localStorage.removeItem(LEGACY_SETTINGS_KEY);
 }
 
 function loadSpoken() {
   try {
-    return JSON.parse(localStorage.getItem(SPOKEN_KEY) || "{}");
+    const raw = localStorage.getItem(SPOKEN_KEY) || localStorage.getItem(LEGACY_SPOKEN_KEY);
+    return JSON.parse(raw || "{}");
   } catch {
     return {};
   }
@@ -67,6 +72,7 @@ function loadSpoken() {
 
 function saveSpoken() {
   localStorage.setItem(SPOKEN_KEY, JSON.stringify(spokenAt));
+  localStorage.removeItem(LEGACY_SPOKEN_KEY);
 }
 
 function currentDestination() {

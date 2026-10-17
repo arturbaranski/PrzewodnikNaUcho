@@ -15,7 +15,7 @@ for (const [id, queries] of jobs) {
   for (const q of queries) {
     const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&q=" + encodeURIComponent(q);
     const res = await fetch(url, {
-      headers: { "User-Agent": "malta-na-ucho-personal-guide/1.0 (personal travel app)", "Accept-Language": "en" },
+      headers: { "User-Agent": "przewodnik-na-ucho/1.0 (personal travel app)", "Accept-Language": "en" },
     });
     const data = res.ok ? await res.json() : [];
     hit = data.find((item) => {

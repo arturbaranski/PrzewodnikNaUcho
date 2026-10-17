@@ -6,7 +6,7 @@ out center tags;`;
 
 const res = await fetch("https://overpass-api.de/api/interpreter", {
   method: "POST",
-  headers: { "User-Agent": "malta-na-ucho-personal-guide/1.0" },
+  headers: { "User-Agent": "przewodnik-na-ucho/1.0" },
   body: query,
 });
 const text = await res.text();

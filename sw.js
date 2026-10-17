@@ -1,5 +1,5 @@
-const CACHE = "malta-na-ucho-v8";
-const TILES = "malta-na-ucho-tiles-v1";
+const CACHE = "przewodnik-na-ucho-v1";
+const TILES = "przewodnik-na-ucho-tiles-v1";
 const ASSETS = [
   "./",
   "./index.html",

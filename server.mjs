@@ -40,5 +40,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, () => {
-  console.log(`Malta na ucho: http://localhost:${port}`);
+  console.log(`Przewodnik na ucho: http://localhost:${port}`);
 });
