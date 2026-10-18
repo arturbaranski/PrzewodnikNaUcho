@@ -273,6 +273,21 @@ main {
 .island.miasto { background: var(--sea-2); }
 .island.pamiec { background: #3d3a34; }
 
+.map-frame { position: relative; }
+.map-close {
+  position: absolute;
+  z-index: 500;
+  top: 10px;
+  right: 10px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--sea);
+  color: #f6f1e7;
+  font-weight: 750;
+  box-shadow: 0 4px 16px rgba(28, 25, 21, 0.22);
+}
 .map-wrap {
   height: calc(100dvh - 250px);
   min-height: 320px;
@@ -357,16 +372,18 @@ nav button.on { color: var(--sea); }
   height: 5px;
   border-radius: 99px;
   background: var(--sand-2);
-  margin: 4px auto 12px;
+  margin: 4px auto 8px;
 }
-.back {
-  border: 0;
-  background: transparent;
-  color: var(--sea);
-  font-weight: 750;
-  padding: 0;
-  min-height: 40px;
+.sheet-bar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: flex-end;
+  background: var(--card);
+  padding-bottom: 8px;
 }
+.sheet-close { position: static; }
 
 .empty { color: var(--muted); padding: 12px 0; }
 

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { PLACES } from "./places.js";
 import { distanceMeters } from "./engine.js";
 
-const AREAS = ["Valletta", "Trzy Miasta", "Mdina i Rabat", "Centrum", "Prehistoria", "Południe", "Północ", "Gozo", "Comino"];
+const AREAS = ["Valletta", "Floriana", "Trzy Miasta", "Mdina i Rabat", "Centrum", "Prehistoria", "Południe", "Północ", "Gozo", "Comino"];
 
 test("every place is on the Maltese islands and has a spoken story", () => {
   const ids = new Set();

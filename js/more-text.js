@@ -5,7 +5,9 @@ Fontannę z trytonami wyrzeźbił Vincent Apap w tysiąc dziewięćset pięćdzi
 
   "st-johns": `Kościół zaczęto około tysiąc pięćset siedemdziesiątego trzeciego roku, też według Cassara. Z zewnątrz miał wyglądać skromnie, po rycersku. Barok doszedł później: sklepienie pokrył freskami kawaler Mattia Preti w latach sześćdziesiątych siedemnastego wieku. W posadzce leży kilkaset marmurowych nagrobków rycerzy. Chodzi się po nazwiskach.
 
-Karawadżio przypłynął na Maltę w tysiąc sześćset siódmym, został kawalerem i rok później namalował Ścięcie. To jego jedyny podpisany obraz. Wkrótce popadł w awanturę, trafił do więzienia zakonu i uciekł z wyspy. Obraz został. W dziewiętnastym wieku kościół stał się konkatedrą, obok katedry w Mdinie. Bilet jest osobny, a zdjęcia przy Karawadżiu bywają ograniczone.`,
+Karawadżio przypłynął na Maltę w tysiąc sześćset siódmym, został kawalerem i rok później namalował Ścięcie. To jego jedyny podpisany obraz. Wkrótce popadł w awanturę, trafił do więzienia zakonu i uciekł z wyspy. Obraz został. W dziewiętnastym wieku kościół stał się konkatedrą, obok katedry w Mdinie. Bilet jest osobny, a zdjęcia przy Karawadżiu bywają ograniczone.
+
+W tym samym kościele wisi drugi obraz Karawadżia z Malty, Święty Hieronim piszący. Hieronim siedzi nad księgą, obok leży czaszka. To nie jest Ścięcie. Ścięcie jest w oratorium i tylko ono nosi podpis, w kałuży krwi. Oba płótna zostały na wyspie. Reszta jego obrazów wisi gdzie indziej.`,
 
   archaeology: `Oberżę Prowansji wzniesiono w szesnastym wieku dla kawalerów z południa Francji. Każdy język, czyli grupa narodowa zakonu, miał taki pałac: wspólny dach, wspólną kaplicę, osobną dumę. Budynek dostał się potem Brytyjczykom, a muzeum archeologiczne działa tu od początku dwudziestego wieku.
 
@@ -29,7 +31,9 @@ Herb nad bramą, szerokie schody i to, że pałac zamyka ulicę, miały pokazać
 
   "upper-barrakka": `Arkady postawili kawalerowie języka włoskiego w siedemnastym wieku, jako zadaszony spacer dla swojej oberży. Niżej, na baterii salutowej, stoi armata odrestaurowana przez miejscową fundację. Strzał w południe i o szesnastej to nie pokaz sztuczny: tak witano i żegnano okręty, a dziś zostawiono samą godzinę.
 
-Winda na nabrzeże jeździła już w tysiąc dziewięćset piątym. Potem ją rozebrano i otwarto na nowo w dwa tysiące dwunastym. Z tarasu widać, czemu port był wart oblężenia: wąskie wejście, trzy miasta naprzeciwko i woda, którą dało się zamknąć łańcuchem. Zostań na jeden strzał, jeśli trafisz w godzinę.`,
+Winda na nabrzeże jeździła już w tysiąc dziewięćset piątym. Potem ją rozebrano i otwarto na nowo w dwa tysiące dwunastym. Z tarasu widać, czemu port był wart oblężenia: wąskie wejście, trzy miasta naprzeciwko i woda, którą dało się zamknąć łańcuchem. Zostań na jeden strzał, jeśli trafisz w godzinę.
+
+W ogrodzie stoi też brąz Les Gavroches, dzieci ulicy, dłuta Antonia Sciortino, z początku dwudziestego wieku. Ten sam rzeźbiarz zrobił pomnik Wielkiego Oblężenia przy gmachu sądu.`,
 
   lascaris: `Nazwa jest od wielkiego mistrza Jana de Lascaris, który w siedemnastym wieku umacniał ten róg bastionu. Sale wykuto głębiej dopiero na drugą wojnę. W tysiąc dziewięćset czterdziestym trzecim przygotowywano tu lądowanie na Sycylii. Bywali w tych korytarzach Eisenhower i Montgomery. Mapy na ścianach zostały.
 
@@ -65,7 +69,9 @@ W celach zostawili rysunki, także okręty wydrapane w tynku. Pałac później s
 
   "st-angelo": `Zanim zakon tu przypłynął, na cyplu stał już średniowieczny zamek morski. Od tysiąc pięćset trzydziestego roku była tu kwatera wielkiego mistrza. W oblężeniu de Valette dowodził stąd, patrząc na padający Święty Elm. Między tym fortem a Sengleą rozciągano łańcuch, żeby okręty nie weszły w głąb portu.
 
-Brytyjczycy nazwali fort kamienną fregatą, HMS St Angelo, i trzymali tu marynarkę. Dziś wały są po renowacji i często da się na nie wejść. Kaplica świętej Anny jest mała i starsza niż barok Valletty. Zostań, aż ułożysz sobie trzy miasta: Birgu pod tobą, Senglea na lewo, Cospicua w głębi lądu.`,
+Brytyjczycy nazwali fort kamienną fregatą, HMS St Angelo, i trzymali tu marynarkę. Dziś wały są po renowacji i często da się na nie wejść. Kaplica świętej Anny jest mała i starsza niż barok Valletty. Zostań, aż ułożysz sobie trzy miasta: Birgu pod tobą, Senglea na lewo, Cospicua w głębi lądu.
+
+W tysiąc sześćset ósmym roku zamknięto tu Karawadżia, po bójce, niedługo po Ścięciu dla konkatedry. Uciekł z fortu na Sycylię. Zakon skreślił go z listy kawalerów. Obraz został w Valletcie.`,
 
   gardjola: `Oko i ucho nie są same. Jest jeszcze żuraw, ptak, który w dawnej symbolice miał czuwać. Trzy znaki, jedna służba: widzieć, słyszeć, nie zasnąć. Sengleę nazwano od wielkiego mistrza Claude'a de la Sengle, który umacniał ten półwysep w szesnastym wieku.
 

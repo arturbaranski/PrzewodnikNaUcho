@@ -17,9 +17,11 @@ const state = {
   lockedId: null,
   nearestId: null,
   speakingId: null,
+  speechPaused: false,
   pendingId: null,
   chunks: [],
   chunkIndex: 0,
+  chunkOffset: 0,
   sheetId: null,
   query: "",
   island: "all",
@@ -29,6 +31,7 @@ const state = {
   map: null,
   userMarker: null,
   mapCentered: false,
+  mapReturn: "now",
 };
 
 const settings = loadSettings();
@@ -82,6 +85,14 @@ function currentDestination() {
 function currentPlaces() {
   const destination = currentDestination();
   return destination ? destination.places : [];
+}
+
+function placeCountLabel(count) {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (count === 1) return "1 miejsce";
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${count} miejsca`;
+  return `${count} miejsc`;
 }
 
 function placeById(id) {
@@ -205,8 +216,17 @@ function renderStatus() {
 
 function renderNav() {
   document.querySelectorAll("nav button").forEach((button) => {
-    button.classList.toggle("on", button.dataset.view === state.view);
+    const home = button.dataset.action === "change-destination";
+    const on = currentDestination() ? button.dataset.view === state.view : home;
+    button.classList.toggle("on", on);
   });
+}
+
+function playButton(id) {
+  const playing = state.speakingId === id && !state.speechPaused;
+  const action = playing ? "pause-speech" : "play";
+  const label = playing ? "Stop" : "Odtwórz";
+  return `<button class="primary" type="button" data-action="${action}" data-id="${id}">${label}</button>`;
 }
 
 function renderPlayer() {
@@ -218,8 +238,23 @@ function renderPlayer() {
   }
   const place = placeById(state.speakingId);
   const title = place ? place.name : "Przewodnik";
+  const status = state.speechPaused ? "Wstrzymane" : "Czytam na głos";
+  const button = state.speechPaused
+    ? `<button type="button" data-action="play" data-id="${esc(state.speakingId)}">Odtwórz</button>`
+    : `<button type="button" data-action="pause-speech">Stop</button>`;
   el.hidden = false;
-  el.innerHTML = `<p><b>${esc(title)}</b><span>Czytam na głos</span></p><button type="button" data-action="stop-speech">Stop</button>`;
+  el.innerHTML = `<p><b>${esc(title)}</b><span>${status}</span></p>${button}`;
+}
+
+function syncSpeechButtons() {
+  document.querySelectorAll("[data-action='play'], [data-action='pause-speech']").forEach((button) => {
+    const id = button.dataset.id;
+    if (!id) return;
+    const playing = state.speakingId === id && !state.speechPaused;
+    button.dataset.action = playing ? "pause-speech" : "play";
+    button.textContent = playing ? "Stop" : "Odtwórz";
+  });
+  renderPlayer();
 }
 
 function render() {
@@ -255,7 +290,11 @@ function renderBrand() {
   const change = document.getElementById("change-destination");
   const name = destination ? destination.title : "Przewodnik na ucho";
   if (title) title.textContent = name;
-  if (sub) sub.textContent = destination ? destination.subtitle : "Wybierz kierunek";
+  if (sub) {
+    sub.textContent = destination
+      ? `${destination.subtitle} · ${placeCountLabel(destination.places.length)}`
+      : "Wybierz kierunek";
+  }
   if (change) change.hidden = !destination;
   document.title = name;
 }
@@ -303,7 +342,7 @@ function renderNow() {
       ${arrived ? `<div class="here">W zasięgu opowieści</div>` : ""}
       ${featured ? `<p class="meta">Opowieść włącza się sama w promieniu ${threshold} m.${choice && !choice.accurate ? " Czekam na dokładniejszy GPS." : ""}</p>` : ""}
       <div class="row">
-        ${featured ? `<button class="primary" type="button" data-action="play" data-id="${featured.id}">Odtwórz</button>` : ""}
+        ${featured ? playButton(featured.id) : ""}
         ${state.tracking ? `<button class="secondary" type="button" data-action="stop-tracking">Zatrzymaj GPS</button>` : `<button class="secondary" type="button" data-action="start">Włącz GPS</button>`}
       </div>
       ${featured ? `<div class="speech" style="margin-top:14px">${paragraphs(featured.speech)}</div>` : ""}
@@ -369,7 +408,7 @@ function renderList() {
       ${destination.filters.map((item) => chip(item.id, item.label)).join("")}
     </div>
     <input id="search" class="search" type="search" placeholder="Szukaj zabytku albo miejscowości" value="${esc(state.query)}" data-action="search">
-    ${state.pos ? `<p class="meta">Ułożone od najbliższego.</p>` : `<p class="meta">${currentPlaces().length} miejsc. Włącz GPS, a ułożę je według odległości.</p>`}
+    ${state.pos ? `<p class="meta">${placeCountLabel(currentPlaces().length)}. Ułożone od najbliższego.</p>` : `<p class="meta">${placeCountLabel(currentPlaces().length)}. Włącz GPS, a ułożę je według odległości.</p>`}
     ${body}
   `;
 }
@@ -387,7 +426,10 @@ function placeRow(place) {
 function renderMap() {
   return `
     <p class="meta">Kropka w kolorze morza to Ty. Stuknij miejsce, żeby odsłuchać opowieść. Kafelki mapy pobierają się z internetu i zostają w telefonie.</p>
-    <div id="map" class="map-wrap"></div>
+    <div class="map-frame">
+      <button class="map-close" type="button" data-action="close-map">Zamknij</button>
+      <div id="map" class="map-wrap"></div>
+    </div>
   `;
 }
 
@@ -457,12 +499,14 @@ function openSheet(id) {
   sheet.innerHTML = `
     <article class="sheet-card">
       <div class="handle"></div>
-      <button class="back" type="button" data-action="close-sheet">Zamknij</button>
+      <div class="sheet-bar">
+        <button class="map-close sheet-close" type="button" data-action="close-sheet">Zamknij</button>
+      </div>
       <p class="kicker">${esc(place.area)}</p>
       <h3>${esc(place.name)}</h3>
       <p class="meta">${esc(distance)} · opowieść w promieniu ${Math.round(place.radius * settings.radiusScale)} m</p>
       <div class="row">
-        <button class="primary" type="button" data-action="play" data-id="${place.id}">Odtwórz</button>
+        ${playButton(place.id)}
         <button class="secondary" type="button" data-action="navigate" data-id="${place.id}">Prowadź</button>
       </div>
       <div class="row" style="margin-top:8px">
@@ -475,10 +519,12 @@ function openSheet(id) {
 }
 
 function closeSheet() {
+  const closedId = state.sheetId;
   state.sheetId = null;
   const sheet = document.getElementById("sheet");
   sheet.hidden = true;
   sheet.innerHTML = "";
+  if (closedId && state.speakingId === closedId && state.speechPaused) stopSpeech();
 }
 
 function showMap() {
@@ -487,6 +533,7 @@ function showMap() {
     if (node) node.innerHTML = `<p class="empty">Mapa się nie wczytała. Lista miejsc działa bez niej.</p>`;
     return;
   }
+  if (state.map && state.map.getContainer() !== node) resetMap();
   if (!state.map) {
     state.map = L.map(node, { zoomControl: true });
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -663,6 +710,10 @@ function queueSpeech(id) {
 function speakPlace(id, options = { manual: true }) {
   const place = placeById(id);
   if (!place) return;
+  if (state.speakingId === id && state.speechPaused) {
+    resumeSpeech();
+    return;
+  }
   if (options.manual) state.pendingId = null;
   spokenAt[id] = Date.now();
   saveSpoken();
@@ -673,18 +724,21 @@ function speakPlace(id, options = { manual: true }) {
 function speakText(id, text) {
   if (!("speechSynthesis" in window)) {
     state.speakingId = null;
-    renderPlayer();
+    state.speechPaused = false;
+    syncSpeechButtons();
     return;
   }
   const token = ++speechToken;
   state.speakingId = id;
+  state.speechPaused = false;
   state.speechError = "";
   state.chunks = splitSpeech(text);
   state.chunkIndex = 0;
+  state.chunkOffset = 0;
   state.speechToken = token;
   const start = () => {
     if (token !== speechToken) return;
-    renderPlayer();
+    syncSpeechButtons();
     utterNext(token);
   };
   if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
@@ -694,24 +748,40 @@ function speakText(id, text) {
 }
 
 function utterNext(token) {
-  if (token !== speechToken) return;
+  if (token !== speechToken || state.speechPaused) return;
+  while (state.chunkIndex < state.chunks.length && (state.chunkOffset || 0) >= state.chunks[state.chunkIndex].length) {
+    state.chunkIndex += 1;
+    state.chunkOffset = 0;
+  }
   if (state.chunkIndex >= state.chunks.length) {
     finishSpeech(token);
     return;
   }
   const voice = selectedVoice();
-  const utterance = new SpeechSynthesisUtterance(state.chunks[state.chunkIndex]);
+  const base = state.chunkOffset || 0;
+  const text = state.chunks[state.chunkIndex].slice(base);
+  const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = voice && voice.lang ? voice.lang : "pl-PL";
   utterance.rate = settings.rate;
   utterance.pitch = 1;
   if (voice) utterance.voice = voice;
+  state.boundarySeen = false;
+  state.utterStarted = performance.now();
+  utterance.onboundary = (event) => {
+    if (token !== speechToken || state.speechPaused) return;
+    if (event.charIndex > 0) {
+      state.boundarySeen = true;
+      state.chunkOffset = base + event.charIndex;
+    }
+  };
   utterance.onend = () => {
-    if (token !== speechToken) return;
+    if (token !== speechToken || state.speechPaused) return;
+    state.chunkOffset = 0;
     state.chunkIndex += 1;
     utterNext(token);
   };
   utterance.onerror = (event) => {
-    if (token !== speechToken) return;
+    if (token !== speechToken || state.speechPaused) return;
     const reason = event.error || "";
     if (reason !== "interrupted" && reason !== "canceled") {
       state.speechError = "Nie udało się czytać na głos. Tekst zostaje na ekranie. W ustawieniach sprawdź, czy telefon ma polski głos.";
@@ -724,21 +794,61 @@ function utterNext(token) {
 function finishSpeech(token) {
   if (token !== speechToken) return;
   state.speakingId = null;
+  state.speechPaused = false;
   state.chunks = [];
+  state.chunkOffset = 0;
   const pending = state.pendingId;
   state.pendingId = null;
-  renderPlayer();
+  syncSpeechButtons();
   if (pending) speakPlace(pending, { manual: false });
   else if (state.speechError && (state.view === "now" || state.view === "settings")) render();
+}
+
+function rememberSpokenPoint() {
+  if (state.boundarySeen) return;
+  const chunk = state.chunks[state.chunkIndex] || "";
+  const base = state.chunkOffset || 0;
+  const elapsed = (performance.now() - (state.utterStarted || performance.now())) / 1000;
+  if (elapsed < 0.3 || base >= chunk.length) return;
+  const guess = Math.min(chunk.length - 1, base + Math.floor(elapsed * 12 * (settings.rate || 1)));
+  const snap = chunk.lastIndexOf(" ", guess);
+  state.chunkOffset = snap >= base ? snap + 1 : base;
+}
+
+function pauseSpeech() {
+  if (!state.speakingId || state.speechPaused) return;
+  rememberSpokenPoint();
+  state.speechPaused = true;
+  speechToken += 1;
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  syncSpeechButtons();
+}
+
+function resumeSpeech() {
+  if (!state.speakingId || !state.speechPaused) return;
+  state.speechPaused = false;
+  const token = ++speechToken;
+  state.speechToken = token;
+  const start = () => {
+    if (token !== speechToken) return;
+    syncSpeechButtons();
+    utterNext(token);
+  };
+  if ("speechSynthesis" in window && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
+    window.speechSynthesis.cancel();
+    window.setTimeout(start, 80);
+  } else start();
 }
 
 function stopSpeech() {
   speechToken += 1;
   state.pendingId = null;
   state.speakingId = null;
+  state.speechPaused = false;
   state.chunks = [];
+  state.chunkOffset = 0;
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-  renderPlayer();
+  syncSpeechButtons();
 }
 
 function splitSpeech(text) {
@@ -784,9 +894,15 @@ function navigateTo(id) {
   window.open(url, "_blank", "noopener");
 }
 
+function closeMap() {
+  state.view = state.mapReturn && state.mapReturn !== "map" ? state.mapReturn : "now";
+  render();
+}
+
 function focusOnMap(id) {
   const place = placeById(id);
   if (!place) return;
+  if (state.view !== "map") state.mapReturn = state.view;
   closeSheet();
   state.view = "map";
   render();
@@ -841,14 +957,17 @@ function onClick(event) {
   if (!button) return;
   const { action, id, view, island } = button.dataset;
   if (action === "nav") {
+    if (view === "map" && state.view !== "map") state.mapReturn = state.view;
     state.view = view;
     render();
   } else if (action === "start") startTracking();
   else if (action === "stop-tracking") stopTracking();
   else if (action === "play") speakPlace(id);
+  else if (action === "pause-speech") pauseSpeech();
   else if (action === "stop-speech") stopSpeech();
   else if (action === "open") openSheet(id);
   else if (action === "close-sheet") closeSheet();
+  else if (action === "close-map") closeMap();
   else if (action === "simulate") simulate(id);
   else if (action === "navigate") navigateTo(id);
   else if (action === "show-map") focusOnMap(id);

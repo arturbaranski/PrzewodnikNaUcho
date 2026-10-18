@@ -19,10 +19,18 @@
   <div class="app">
     <header class="top">
       <div class="brand">
-        <svg viewBox="0 0 48 48" aria-hidden="true">
-          <rect x="2" y="6" width="44" height="36" rx="10" fill="#f3eee6"/>
-          <path d="M13 34 V21.5 a11 11 0 0 1 22 0 V34" fill="none" stroke="#143642" stroke-width="2.6" stroke-linecap="round"/>
-          <circle cx="24" cy="21" r="2.2" fill="#8d3d24"/>
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <rect width="64" height="64" rx="14" fill="#f3eee6"/>
+          <g fill="none" stroke="#8d3d24" stroke-width="3.5" stroke-linecap="round" transform="translate(0 3.5)">
+            <path d="M6.5 27c3.2 3.2 3.2 8.4 0 11.6"/>
+            <path d="M12.2 21c5.2 4.8 5.2 15 0 19.8"/>
+            <path d="M18 15.5c7 6.4 7 22.2 0 28.6"/>
+          </g>
+          <g fill="none" stroke="#143642" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round" transform="translate(-3.5 3.5)">
+            <path d="M33.5 28C31 16 39 7.5 49 8.5c11 1.2 14.5 12 11.5 24-3.2 12.5-13 19.5-22 14.5-7-4-9-13-4.2-17"/>
+            <path d="M41 21.5c6.4-1.4 11.6 4 9.2 11-1.8 4.6-6.6 4.4-6.8.2"/>
+            <path d="M47 33.5c2 3.2.4 6.2-2.4 5.4"/>
+          </g>
         </svg>
         <div>
           <h1 id="brand-title">Przewodnik na ucho</h1>
@@ -36,7 +44,7 @@
     <div class="dock">
       <div id="player" class="player" hidden></div>
       <nav>
-        <button type="button" data-action="nav" data-view="now">Teraz</button>
+        <button type="button" data-action="change-destination">Start</button>
         <button type="button" data-action="nav" data-view="list">Miejsca</button>
         <button type="button" data-action="nav" data-view="map">Mapa</button>
         <button type="button" data-action="nav" data-view="settings">Ustawienia</button>
