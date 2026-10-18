@@ -296,7 +296,45 @@ main {
   border: 1px solid var(--line);
 }
 
-.leaflet-container { height: 100%; width: 100%; background: #e7dcc8; font: 14px/1.4 "Segoe UI", sans-serif; }
+.leaflet-container { height: 100%; width: 100%; background: #e7dcc8; font: 14px/1.4 "Segoe UI", sans-serif; touch-action: none; }
+.map-place {
+  position: absolute;
+  z-index: 500;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: 0 8px 24px rgba(28, 25, 21, 0.2);
+}
+.map-place[hidden] { display: none !important; }
+.map-place strong {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  line-height: 1.25;
+}
+.map-place .primary,
+.map-place .secondary {
+  width: auto;
+  min-height: 40px;
+  margin: 0;
+  padding: 8px 12px;
+  flex: none;
+}
+.map-place-x {
+  width: 40px;
+  min-height: 40px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--sand-2);
+  font-size: 22px;
+  line-height: 1;
+}
 
 .field { margin: 0 0 16px; }
 .field label { display: block; font-weight: 700; margin-bottom: 6px; }
