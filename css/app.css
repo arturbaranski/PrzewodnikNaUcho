@@ -359,6 +359,14 @@ nav button.on { color: var(--sea); }
   align-items: flex-end;
 }
 .sheet[hidden] { display: none !important; }
+.sheet.sheet-dock {
+  background: transparent;
+  pointer-events: none;
+}
+.sheet.sheet-dock .sheet-card {
+  pointer-events: auto;
+  max-height: min(38dvh, 320px);
+}
 .sheet-card {
   width: min(480px, 100%);
   max-height: min(88dvh, 820px);

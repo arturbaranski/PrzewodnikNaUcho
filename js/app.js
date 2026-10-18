@@ -489,12 +489,13 @@ function renderSettings() {
   `;
 }
 
-function openSheet(id) {
+function openSheet(id, options = {}) {
   const place = placeById(id);
   if (!place) return;
   state.sheetId = id;
   const distance = state.pos ? formatDistance(nearestDistance(place)) : "brak GPS";
   const sheet = document.getElementById("sheet");
+  sheet.classList.toggle("sheet-dock", Boolean(options.dock));
   sheet.hidden = false;
   sheet.innerHTML = `
     <article class="sheet-card">
@@ -523,8 +524,16 @@ function closeSheet() {
   state.sheetId = null;
   const sheet = document.getElementById("sheet");
   sheet.hidden = true;
+  sheet.classList.remove("sheet-dock");
   sheet.innerHTML = "";
   if (closedId && state.speakingId === closedId && state.speechPaused) stopSpeech();
+}
+
+function releaseStuckDrag() {
+  const map = state.map;
+  if (!map || !map.dragging || !map.dragging.enabled()) return;
+  map.dragging.disable();
+  map.dragging.enable();
 }
 
 function showMap() {
@@ -561,8 +570,11 @@ function showMap() {
         fillColor: "#fffaf3",
         fillOpacity: 1,
       }).addTo(state.map);
-      marker.bindTooltip(place.name, { direction: "top" });
-      marker.on("click", () => openSheet(place.id));
+      marker.bindTooltip(place.name, { direction: "top", opacity: 1 });
+      marker.on("click", () => {
+        openSheet(place.id, { dock: true });
+        setTimeout(releaseStuckDrag, 0);
+      });
     }
     state.userMarker = L.circleMarker([0, 0], {
       radius: 9,
