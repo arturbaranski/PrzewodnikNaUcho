@@ -1,4 +1,4 @@
-const CACHE = "przewodnik-na-ucho-v20";
+const CACHE = "przewodnik-na-ucho-v21";
 const TILES = "przewodnik-na-ucho-tiles-v1";
 const ASSETS = [
   "./",

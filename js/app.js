@@ -429,7 +429,6 @@ function renderMap() {
     <div class="map-frame">
       <button class="map-close" type="button" data-action="close-map">Zamknij</button>
       <div id="map" class="map-wrap"></div>
-      <div id="map-place" class="map-place" hidden></div>
     </div>
   `;
 }
@@ -490,13 +489,12 @@ function renderSettings() {
   `;
 }
 
-function openSheet(id, options = {}) {
+function openSheet(id) {
   const place = placeById(id);
   if (!place) return;
   state.sheetId = id;
   const distance = state.pos ? formatDistance(nearestDistance(place)) : "brak GPS";
   const sheet = document.getElementById("sheet");
-  sheet.classList.toggle("sheet-dock", Boolean(options.dock));
   sheet.hidden = false;
   sheet.innerHTML = `
     <article class="sheet-card">
@@ -525,7 +523,6 @@ function closeSheet() {
   state.sheetId = null;
   const sheet = document.getElementById("sheet");
   sheet.hidden = true;
-  sheet.classList.remove("sheet-dock");
   sheet.innerHTML = "";
   if (closedId && state.speakingId === closedId && state.speechPaused) stopSpeech();
 }
@@ -535,27 +532,6 @@ function clearStuckMapDrag() {
   if (!drag) return;
   drag._lastTarget = null;
   try { drag.finishDrag(); } catch (e) { /* a broken drag target must not freeze the map */ }
-}
-
-function showMapPlace(id) {
-  const place = placeById(id);
-  const bar = document.getElementById("map-place");
-  if (!place || !bar) return;
-  closeSheet();
-  bar.hidden = false;
-  bar.innerHTML = `
-    <strong>${esc(place.name)}</strong>
-    ${playButton(place.id)}
-    <button class="secondary" type="button" data-action="open" data-id="${place.id}">Czytaj</button>
-    <button class="map-place-x" type="button" data-action="close-map-place" aria-label="Schowaj nazwę">×</button>
-  `;
-}
-
-function hideMapPlace() {
-  const bar = document.getElementById("map-place");
-  if (!bar) return;
-  bar.hidden = true;
-  bar.innerHTML = "";
 }
 
 function showMap() {
@@ -593,7 +569,8 @@ function showMap() {
         fillColor: "#fffaf3",
         fillOpacity: 1,
       }).addTo(state.map);
-      marker.on("click", () => showMapPlace(place.id));
+      marker.bindTooltip(place.name, { direction: "top" });
+      marker.on("click", () => openSheet(place.id));
     }
     state.userMarker = L.circleMarker([0, 0], {
       radius: 9,
@@ -999,7 +976,6 @@ function onClick(event) {
   else if (action === "open") openSheet(id);
   else if (action === "close-sheet") closeSheet();
   else if (action === "close-map") closeMap();
-  else if (action === "close-map-place") hideMapPlace();
   else if (action === "simulate") simulate(id);
   else if (action === "navigate") navigateTo(id);
   else if (action === "show-map") focusOnMap(id);
