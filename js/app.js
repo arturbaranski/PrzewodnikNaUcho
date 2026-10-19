@@ -197,6 +197,14 @@ function secureContext() {
   return window.isSecureContext;
 }
 
+function nativeApp() {
+  return window.Capacitor?.isNativePlatform?.() === true;
+}
+
+function nativeSpeech() {
+  return window.Capacitor?.Plugins?.NativeSpeech || null;
+}
+
 function setStatus(mode, text, extra = "") {
   const el = document.getElementById("status");
   el.className = `status ${mode}`;
@@ -232,11 +240,16 @@ function renderNav() {
   });
 }
 
+function playLabel(id, playing) {
+  if (playing) return "Stop";
+  if (id === state.moreFor && state.moreText) return "Odtwórz więcej";
+  return "Odtwórz";
+}
+
 function playButton(id) {
   const playing = state.speakingId === id && !state.speechPaused;
   const action = playing ? "pause-speech" : "play";
-  const label = playing ? "Stop" : "Odtwórz";
-  return `<button class="primary" type="button" data-action="${action}" data-id="${id}">${label}</button>`;
+  return `<button class="primary" type="button" data-action="${action}" data-id="${id}">${playLabel(id, playing)}</button>`;
 }
 
 function syncSpeechButtons() {
@@ -245,7 +258,7 @@ function syncSpeechButtons() {
     if (!id) return;
     const playing = state.speakingId === id && !state.speechPaused;
     button.dataset.action = playing ? "pause-speech" : "play";
-    button.textContent = playing ? "Stop" : "Odtwórz";
+    button.textContent = playLabel(id, playing);
   });
   const marker = state.selectedMarker;
   if (marker && state.map && state.map.hasLayer(marker) && !marker.isTooltipOpen()) marker.openTooltip();
@@ -343,7 +356,7 @@ function renderNow() {
         ${featured ? playButton(featured.id) : ""}
         ${state.tracking ? `<button class="secondary" type="button" data-action="stop-tracking">Zatrzymaj GPS</button>` : `<button class="secondary" type="button" data-action="start">Włącz GPS</button>`}
       </div>
-      ${featured ? `<div class="speech" style="margin-top:14px">${paragraphs(featured.speech)}</div>` : ""}
+      ${featured ? `<div class="speech" style="margin-top:14px">${paragraphs(featured.speech)}</div>${moreBox(featured)}` : ""}
     </article>
   `;
 }
@@ -378,6 +391,12 @@ function insecureBanner() {
 }
 
 function voiceWarning() {
+  if (nativeApp()) {
+    if (state.nativeSpeechFailed || (state.nativeVoicesLoaded && !polishVoices().length)) {
+      return `<div class="banner">Telefon nie ma polskiego głosu. W ustawieniach Androida otwórz zamianę tekstu na mowę i doinstaluj język polski.<button class="secondary" type="button" data-action="open-tts">Otwórz ustawienia mowy</button></div>`;
+    }
+    return "";
+  }
   if (!("speechSynthesis" in window)) {
     return `<div class="banner">Ta przeglądarka nie czyta tekstu na głos. Zostań przy Chrome.</div>`;
   }
@@ -469,7 +488,7 @@ function renderSettings() {
     <section class="field">
       <label for="voice">Głos</label>
       <select id="voice" data-setting="voiceURI">${voiceOptions}</select>
-      <p class="help">Pierwsza pozycja na liście to Google polski pl-PL, jeśli Chrome go widzi. Zostaw ją. Inny głos wybieraj tylko wtedy, gdy na telefonie Google nie jest na liście.</p>
+      <p class="help">${nativeApp() ? "Pierwsza pozycja to polski głos telefonu. Zostaw ją, jeśli brzmi dobrze." : "Pierwsza pozycja na liście to Google polski pl-PL, jeśli Chrome go widzi. Zostaw ją. Inny głos wybieraj tylko wtedy, gdy na telefonie Google nie jest na liście."}</p>
     </section>
     <section class="field">
       <label><input type="checkbox" data-setting="keepAwake" ${settings.keepAwake ? "checked" : ""}> Zostaw ekran włączony podczas przewodnika</label>
@@ -490,9 +509,74 @@ function renderSettings() {
   `;
 }
 
+function moreBox(place) {
+  const ready = state.moreFor === place.id && state.moreText;
+  return `<div class="more-box"><button class="secondary" type="button" data-action="more" data-id="${place.id}">Pobierz więcej</button><div class="more-result speech" data-more-for="${place.id}" ${ready ? "" : "hidden"}>${ready ? paragraphs(state.moreText) : ""}</div></div>`;
+}
+
+function renderMore(data, totalMs) {
+  const seconds = (totalMs / 1000).toFixed(1).replace(".", ",");
+  const history = data.history
+    ? paragraphs(data.history)
+    : data.visit
+      ? ""
+      : data.found
+        ? "<p>Strona nie dodała nic ponad opowieść z pliku.</p>"
+        : "<p>Nie znalazłem polskiej strony, która dodaje coś nowego.</p>";
+  const visit = data.visit ? paragraphs(data.visit) : "";
+  const sources = (data.sources || []).map((url) => `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(url.replace(/^https?:\/\//, ""))}</a>`).join("<br>");
+  return `
+    <p class="meta">Dociągnięcie trwało ${seconds} s.</p>
+    <p class="kicker">Czego nie było w opowieści</p>
+    ${history}
+    ${visit ? `<p class="kicker">Dziś w muzeum</p>${visit}` : ""}
+    <p class="meta">${sources}</p>
+  `;
+}
+
+async function loadMore(id) {
+  const place = placeById(id);
+  const destination = currentDestination();
+  if (!place || !destination) return;
+  const boxes = document.querySelectorAll(`[data-more-for="${id}"]`);
+  boxes.forEach((box) => {
+    box.hidden = false;
+    box.textContent = "Szukam tego, czego nie było w opowieści…";
+  });
+  const started = performance.now();
+  try {
+    const response = await fetch("/api/wiecej", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: place.id, destination: destination.id }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Serwer nie oddał dopowiedzenia.");
+    const extra = [data.history, data.visit].filter(Boolean).join("\n\n");
+    state.moreFor = extra ? place.id : "";
+    state.moreText = extra;
+    const html = renderMore(data, Math.round(performance.now() - started));
+    boxes.forEach((box) => {
+      box.hidden = false;
+      box.innerHTML = html;
+    });
+    syncSpeechButtons();
+  } catch (error) {
+    const offline = !error || error.name === "TypeError" || error.name === "SyntaxError";
+    const text = offline
+      ? "Nie udało się dociągnąć reszty. Otwórz przewodnik z localhost."
+      : `Nie udało się dociągnąć reszty. ${error.message}`;
+    boxes.forEach((box) => {
+      box.hidden = false;
+      box.textContent = text;
+    });
+  }
+}
+
 function openSheet(id) {
   const place = placeById(id);
   if (!place) return;
+  if (state.moreFor && state.moreFor !== id) forgetMore();
   state.sheetId = id;
   const distance = state.pos ? formatDistance(nearestDistance(place)) : "brak GPS";
   const sheet = document.getElementById("sheet");
@@ -515,23 +599,35 @@ function openSheet(id) {
         <button class="secondary" type="button" data-action="simulate" data-id="${place.id}">Udaj, że tu jestem</button>
       </div>
       <div class="speech" style="margin-top:14px">${paragraphs(place.speech)}</div>
+      ${moreBox(place)}
     </article>
   `;
 }
 
-function closeSheet() {
+function forgetMore() {
+  if (!state.moreText && !state.speakingMore && !state.moreFor) return;
+  const extra = state.speakingMore;
+  state.moreText = "";
+  state.moreFor = "";
+  if (extra) stopSpeech();
+  else syncSpeechButtons();
+}
+
+function closeSheet(options = {}) {
   const closedId = state.sheetId;
   state.sheetId = null;
   const sheet = document.getElementById("sheet");
   sheet.hidden = true;
   sheet.innerHTML = "";
   if (closedId && state.speakingId === closedId && state.speechPaused) stopSpeech();
+  if (!options.keepMore) forgetMore();
 }
 
 function showMapCard(id) {
   const place = placeById(id);
   const card = document.getElementById("map-card");
   if (!place || !card) return;
+  if (state.moreFor && state.moreFor !== id) forgetMore();
   state.mapCardId = id;
   const distance = state.pos ? formatDistance(nearestDistance(place)) : "brak GPS";
   card.hidden = false;
@@ -548,6 +644,7 @@ function showMapCard(id) {
       <button class="secondary" type="button" data-action="simulate" data-id="${place.id}">Udaj, że tu jestem</button>
     </div>
     <div class="speech" style="margin-top:14px">${paragraphs(place.speech)}</div>
+    ${moreBox(place)}
   `;
   card.scrollTop = 0;
   highlightMapMarker(place);
@@ -840,7 +937,8 @@ function queueSpeech(id) {
 function speakPlace(id, options = { manual: true }) {
   const place = placeById(id);
   if (!place) return;
-  if (state.speakingId === id && state.speechPaused) {
+  const more = state.moreFor === id && state.moreText;
+  if (state.speakingId === id && state.speechPaused && (!more || state.speakingMore)) {
     resumeSpeech();
     return;
   }
@@ -848,11 +946,12 @@ function speakPlace(id, options = { manual: true }) {
   spokenAt[id] = Date.now();
   saveSpoken();
   if (settings.vibrate && navigator.vibrate) navigator.vibrate([30, 50, 30]);
-  speakText(id, place.speech);
+  state.speakingMore = Boolean(more);
+  speakText(id, more ? state.moreText : place.speech);
 }
 
 function speakText(id, text) {
-  if (!("speechSynthesis" in window)) {
+  if (!nativeSpeech() && !("speechSynthesis" in window)) {
     state.speakingId = null;
     state.speechPaused = false;
     syncSpeechButtons();
@@ -871,6 +970,10 @@ function speakText(id, text) {
     syncSpeechButtons();
     utterNext(token);
   };
+  if (nativeSpeech()) {
+    nativeSpeech().stop().catch(() => {}).finally(start);
+    return;
+  }
   if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
     window.speechSynthesis.cancel();
     window.setTimeout(start, 80);
@@ -890,6 +993,10 @@ function utterNext(token) {
   const voice = selectedVoice();
   const base = state.chunkOffset || 0;
   const text = state.chunks[state.chunkIndex].slice(base);
+  if (nativeSpeech()) {
+    utterNative(token, base, text, voice);
+    return;
+  }
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = voice && voice.lang ? voice.lang : "pl-PL";
   utterance.rate = settings.rate;
@@ -921,10 +1028,40 @@ function utterNext(token) {
   window.speechSynthesis.speak(utterance);
 }
 
+function utterNative(token, base, text, voice) {
+  state.boundarySeen = false;
+  state.utteranceBase = base;
+  state.utterStarted = performance.now();
+  nativeSpeech().speak({
+    text,
+    lang: voice && voice.lang ? voice.lang : "pl-PL",
+    rate: Number(settings.rate) || 1,
+    voice: voice ? voice.voiceURI : "",
+  }).then((result) => {
+    if (token !== speechToken || state.speechPaused) return;
+    if (!result || result.reason === "error") {
+      state.speechError = "Nie udało się czytać na głos. Tekst zostaje na ekranie. W ustawieniach sprawdź, czy telefon ma polski głos.";
+      finishSpeech(token);
+      return;
+    }
+    if (result.reason !== "done") return;
+    state.chunkOffset = 0;
+    state.chunkIndex += 1;
+    utterNext(token);
+  }).catch(() => {
+    if (token !== speechToken || state.speechPaused) return;
+    state.nativeSpeechFailed = true;
+    state.speechError = "Nie udało się czytać na głos. Tekst zostaje na ekranie. W ustawieniach sprawdź, czy telefon ma polski głos.";
+    finishSpeech(token);
+    if (state.view === "now" || state.view === "settings") render();
+  });
+}
+
 function finishSpeech(token) {
   if (token !== speechToken) return;
   state.speakingId = null;
   state.speechPaused = false;
+  state.speakingMore = false;
   state.chunks = [];
   state.chunkOffset = 0;
   const pending = state.pendingId;
@@ -950,7 +1087,8 @@ function pauseSpeech() {
   rememberSpokenPoint();
   state.speechPaused = true;
   speechToken += 1;
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  if (nativeSpeech()) nativeSpeech().stop().catch(() => {});
+  else if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   syncSpeechButtons();
 }
 
@@ -964,6 +1102,10 @@ function resumeSpeech() {
     syncSpeechButtons();
     utterNext(token);
   };
+  if (nativeSpeech()) {
+    nativeSpeech().stop().catch(() => {}).finally(start);
+    return;
+  }
   if ("speechSynthesis" in window && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
     window.speechSynthesis.cancel();
     window.setTimeout(start, 80);
@@ -975,9 +1117,11 @@ function stopSpeech() {
   state.pendingId = null;
   state.speakingId = null;
   state.speechPaused = false;
+  state.speakingMore = false;
   state.chunks = [];
   state.chunkOffset = 0;
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  if (nativeSpeech()) nativeSpeech().stop().catch(() => {});
+  else if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   syncSpeechButtons();
 }
 
@@ -1028,6 +1172,7 @@ function closeMap() {
   const cardId = state.mapCardId;
   state.mapCardId = null;
   state.view = state.mapReturn && state.mapReturn !== "map" ? state.mapReturn : "now";
+  forgetMore();
   render();
   if (cardId && state.speakingId === cardId && state.speechPaused) stopSpeech();
 }
@@ -1036,7 +1181,7 @@ function focusOnMap(id) {
   const place = placeById(id);
   if (!place) return;
   if (state.view !== "map") state.mapReturn = state.view;
-  closeSheet();
+  closeSheet({ keepMore: true });
   state.mapCardId = place.id;
   state.mapFocus = { lat: place.lat, lng: place.lng, zoom: 17 };
   state.view = "map";
@@ -1113,7 +1258,10 @@ function onClick(event) {
   else if (action === "change-destination") clearDestination();
   else if (action === "test-voice") {
     speakText("test", "Dzień dobry. Tak będzie brzmieć przewodnik na ucho.");
-  } else if (action === "reset-heard") {
+  } else if (action === "open-tts") {
+    nativeSpeech()?.openSettings().catch(() => {});
+  } else if (action === "more") loadMore(id);
+  else if (action === "reset-heard") {
     for (const key of Object.keys(spokenAt)) delete spokenAt[key];
     saveSpoken();
     render();
@@ -1177,7 +1325,7 @@ window.addEventListener("beforeinstallprompt", (event) => {
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState !== "visible") return;
   if (state.tracking && !state.preview) requestWake();
-  if ("serviceWorker" in navigator) {
+  if ("serviceWorker" in navigator && !nativeApp()) {
     navigator.serviceWorker.getRegistration().then((reg) => reg && reg.update()).catch(() => {});
   }
 });
@@ -1191,7 +1339,38 @@ if ("speechSynthesis" in window) {
   window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
 }
 
-if ("serviceWorker" in navigator && secureContext()) {
+function loadNativeVoices() {
+  const plugin = nativeSpeech();
+  if (!plugin) {
+    state.nativeSpeechFailed = true;
+    return;
+  }
+  try {
+    plugin.addListener("range", (event) => {
+      if (!state.speakingId || state.speechPaused) return;
+      const index = Number(event.charIndex) || 0;
+      if (index <= 0) return;
+      state.boundarySeen = true;
+      state.chunkOffset = (state.utteranceBase || 0) + index;
+    });
+  } catch {
+    /* pause still estimates the place in the sentence */
+  }
+  Promise.resolve()
+    .then(() => plugin.voices())
+    .then((result) => {
+      state.voices = result?.voices || [];
+      state.nativeVoicesLoaded = true;
+      if (state.view === "now" || state.view === "settings") render();
+    })
+    .catch(() => {
+      state.nativeSpeechFailed = true;
+      state.nativeVoicesLoaded = true;
+      if (state.view === "now" || state.view === "settings") render();
+    });
+}
+
+if ("serviceWorker" in navigator && secureContext() && !nativeApp()) {
   let refreshing = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (refreshing) return;
@@ -1204,3 +1383,4 @@ if ("serviceWorker" in navigator && secureContext()) {
 }
 
 render();
+if (nativeApp()) loadNativeVoices();
