@@ -1,4 +1,4 @@
-const CACHE = "przewodnik-na-ucho-v38";
+const CACHE = "przewodnik-na-ucho-v39";
 const TILES = "przewodnik-na-ucho-tiles-v1";
 const ASSETS = [
   "./",
@@ -28,8 +28,16 @@ const ASSETS = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
-  self.skipWaiting();
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    await Promise.all(ASSETS.map(async (path) => {
+      const url = new URL(path, self.location).href;
+      const response = await fetch(url, { cache: "reload" });
+      if (!response.ok) throw new Error(path);
+      await cache.put(url, response);
+    }));
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (event) => {
@@ -72,8 +80,10 @@ self.addEventListener("fetch", (event) => {
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);
     try {
-      const response = await fetch(request);
-      if (response.ok) await cache.put(request, response.clone());
+      const response = await fetch(request.url, { cache: "reload", credentials: "same-origin" });
+      if (response.ok) {
+        try { await cache.put(request.url, response.clone()); } catch { /* navigate requests are not always cacheable */ }
+      }
       return response;
     } catch {
       const cached = await cache.match(request);

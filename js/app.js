@@ -1175,7 +1175,11 @@ window.addEventListener("beforeinstallprompt", (event) => {
 });
 
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && state.tracking && !state.preview) requestWake();
+  if (document.visibilityState !== "visible") return;
+  if (state.tracking && !state.preview) requestWake();
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistration().then((reg) => reg && reg.update()).catch(() => {});
+  }
 });
 
 document.addEventListener("click", onClick);
@@ -1188,7 +1192,15 @@ if ("speechSynthesis" in window) {
 }
 
 if ("serviceWorker" in navigator && secureContext()) {
-  navigator.serviceWorker.register("./sw.js").catch(() => {});
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
+  navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" })
+    .then((reg) => reg.update())
+    .catch(() => {});
 }
 
 render();
