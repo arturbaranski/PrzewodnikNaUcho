@@ -32,6 +32,8 @@ const state = {
   userMarker: null,
   mapCentered: false,
   mapReturn: "now",
+  mapCardId: null,
+  mapFocus: null,
 };
 
 const settings = loadSettings();
@@ -229,23 +231,6 @@ function playButton(id) {
   return `<button class="primary" type="button" data-action="${action}" data-id="${id}">${label}</button>`;
 }
 
-function renderPlayer() {
-  const el = document.getElementById("player");
-  if (!state.speakingId) {
-    el.hidden = true;
-    el.innerHTML = "";
-    return;
-  }
-  const place = placeById(state.speakingId);
-  const title = place ? place.name : "Przewodnik";
-  const status = state.speechPaused ? "Wstrzymane" : "Czytam na głos";
-  const button = state.speechPaused
-    ? `<button type="button" data-action="play" data-id="${esc(state.speakingId)}">Odtwórz</button>`
-    : `<button type="button" data-action="pause-speech">Stop</button>`;
-  el.hidden = false;
-  el.innerHTML = `<p><b>${esc(title)}</b><span>${status}</span></p>${button}`;
-}
-
 function syncSpeechButtons() {
   document.querySelectorAll("[data-action='play'], [data-action='pause-speech']").forEach((button) => {
     const id = button.dataset.id;
@@ -254,17 +239,18 @@ function syncSpeechButtons() {
     button.dataset.action = playing ? "pause-speech" : "play";
     button.textContent = playing ? "Stop" : "Odtwórz";
   });
-  renderPlayer();
+  const marker = state.selectedMarker;
+  if (marker && state.map && state.map.hasLayer(marker) && !marker.isTooltipOpen()) marker.openTooltip();
 }
 
 function render() {
   renderBrand();
   renderStatus();
   renderNav();
-  renderPlayer();
   const main = document.getElementById("main");
   const focus = document.activeElement;
   const search = focus && focus.id === "search" ? { start: focus.selectionStart, end: focus.selectionEnd } : null;
+  if (state.view !== "map") state.mapFocus = null;
   if (!currentDestination()) {
     main.innerHTML = renderPicker();
     return;
@@ -425,10 +411,11 @@ function placeRow(place) {
 
 function renderMap() {
   return `
-    <p class="meta">Kropka w kolorze morza to Ty. Stuknij miejsce, żeby odsłuchać opowieść. Kafelki mapy pobierają się z internetu i zostają w telefonie.</p>
+    <p class="meta">Czerwona kropka to Ty. Stuknij miejsce, żeby odsłuchać opowieść. Kafelki mapy pobierają się z internetu i zostają w telefonie.</p>
     <div class="map-frame">
       <button class="map-close" type="button" data-action="close-map">Zamknij</button>
       <div id="map" class="map-wrap"></div>
+      <article id="map-card" class="map-card" hidden></article>
     </div>
   `;
 }
@@ -527,6 +514,126 @@ function closeSheet() {
   if (closedId && state.speakingId === closedId && state.speechPaused) stopSpeech();
 }
 
+function showMapCard(id) {
+  const place = placeById(id);
+  const card = document.getElementById("map-card");
+  if (!place || !card) return;
+  state.mapCardId = id;
+  const distance = state.pos ? formatDistance(nearestDistance(place)) : "brak GPS";
+  card.hidden = false;
+  card.closest(".map-frame").classList.add("has-card");
+  card.innerHTML = `
+    <p class="kicker">${esc(place.area)}</p>
+    <h3>${esc(place.name)}</h3>
+    <p class="meta">${esc(distance)} · opowieść w promieniu ${Math.round(place.radius * settings.radiusScale)} m</p>
+    <div class="row">
+      ${playButton(place.id)}
+      <button class="secondary" type="button" data-action="navigate" data-id="${place.id}">Prowadź</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="secondary" type="button" data-action="simulate" data-id="${place.id}">Udaj, że tu jestem</button>
+    </div>
+    <div class="speech" style="margin-top:14px">${paragraphs(place.speech)}</div>
+  `;
+  card.scrollTop = 0;
+  highlightMapMarker(place);
+  if (state.map) {
+    requestAnimationFrame(() => {
+      if (!state.map) return;
+      state.map.invalidateSize();
+      const marker = state.markers && state.markers[place.id];
+      if (marker) revealSelectedMarker(marker);
+    });
+  }
+}
+
+function revealSelectedMarker(marker) {
+  const point = state.map.latLngToContainerPoint(marker.getLatLng());
+  const size = state.map.getSize();
+  const marginX = 28;
+  const marginTop = 42;
+  const marginBottom = 20;
+  let dx = 0;
+  let dy = 0;
+  if (point.x < marginX) dx = point.x - marginX;
+  else if (point.x > size.x - marginX) dx = point.x - (size.x - marginX);
+  if (point.y < marginTop) dy = point.y - marginTop;
+  else if (point.y > size.y - marginBottom) dy = point.y - (size.y - marginBottom);
+  if (dx || dy) state.map.panBy([dx, dy], { animate: false });
+  if (!marker.isTooltipOpen()) marker.openTooltip();
+}
+
+function markerColor(island) {
+  const colors = {
+    malta: "#8d3d24",
+    gozo: "#1d6b58",
+    comino: "#8a6a28",
+    deptak: "#8a6a28",
+    fabryki: "#8d3d24",
+    miasto: "#1e5364",
+    pamiec: "#3d3a34",
+    stare: "#8a6a28",
+    waly: "#1e5364",
+    parki: "#1d6b58",
+  };
+  return colors[island] || colors.malta;
+}
+
+function styleMapMarker(marker, selected) {
+  const color = markerColor(marker.placeRef.island);
+  marker.setStyle({
+    radius: selected ? 9 : 7,
+    weight: 2,
+    color,
+    fillColor: selected ? color : "#fffaf3",
+    fillOpacity: 1,
+  });
+  if (marker._path) marker._path.style.outline = "none";
+}
+
+function releaseMarkerTip(marker) {
+  if (marker._holdTip) {
+    marker.off("tooltipclose", marker._holdTip);
+    marker._holdTip = null;
+  }
+  marker.unbindTooltip();
+  marker.bindTooltip(marker.placeRef.name, { direction: "top", opacity: 1 });
+}
+
+function holdMarkerTip(marker) {
+  if (marker._holdTip) marker.off("tooltipclose", marker._holdTip);
+  marker._holdTip = () => {
+    if (state.selectedMarker !== marker) return;
+    window.setTimeout(() => {
+      if (state.selectedMarker === marker && state.map && state.map.hasLayer(marker) && !marker.isTooltipOpen()) {
+        marker.openTooltip();
+      }
+    }, 0);
+  };
+  marker.on("tooltipclose", marker._holdTip);
+}
+
+function highlightMapMarker(place) {
+  const marker = state.markers && state.markers[place.id];
+  if (!marker) return;
+  if (state.selectedMarker && state.selectedMarker !== marker) {
+    const previous = state.selectedMarker;
+    styleMapMarker(previous, false);
+    releaseMarkerTip(previous);
+  }
+  styleMapMarker(marker, true);
+  if (marker._holdTip) {
+    marker.off("tooltipclose", marker._holdTip);
+    marker._holdTip = null;
+  }
+  marker.unbindTooltip();
+  marker.bindTooltip(place.name, { permanent: true, direction: "top", opacity: 1, offset: [0, -4] });
+  holdMarkerTip(marker);
+  marker.openTooltip();
+  state.selectedMarker = marker;
+  if (marker._path) marker._path.blur();
+}
+
 function clearStuckMapDrag() {
   const drag = state.map && state.map.dragging && state.map.dragging._draggable;
   if (!drag) return;
@@ -549,57 +656,58 @@ function showMap() {
       subdomains: "abc",
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(state.map);
-    const colors = {
-      malta: "#8d3d24",
-      gozo: "#1d6b58",
-      comino: "#8a6a28",
-      deptak: "#8a6a28",
-      fabryki: "#8d3d24",
-      miasto: "#1e5364",
-      pamiec: "#3d3a34",
-      stare: "#8a6a28",
-      waly: "#1e5364",
-      parki: "#1d6b58",
-    };
+    state.markers = {};
+    state.selectedMarker = null;
     for (const place of currentPlaces()) {
+      const color = markerColor(place.island);
       const marker = L.circleMarker([place.lat, place.lng], {
         radius: 7,
-        color: colors[place.island] || colors.malta,
+        color,
         weight: 2,
         fillColor: "#fffaf3",
         fillOpacity: 1,
       }).addTo(state.map);
+      marker.placeRef = place;
+      state.markers[place.id] = marker;
       marker.bindTooltip(place.name, { direction: "top" });
-      marker.on("click", () => openSheet(place.id));
+      marker.on("click", () => {
+        showMapCard(place.id);
+        if (marker._path) marker._path.blur();
+      });
     }
     state.userMarker = L.circleMarker([0, 0], {
-      radius: 9,
+      radius: 8,
       color: "#ffffff",
       weight: 3,
-      fillColor: "#143642",
+      fillColor: "#d01212",
       fillOpacity: 1,
     });
   }
   state.map.invalidateSize();
+  if (state.mapFocus) {
+    const focus = state.mapFocus;
+    state.mapFocus = null;
+    state.map.setView([focus.lat, focus.lng], focus.zoom);
+    state.mapCentered = true;
+  }
   updateUserMarker(true);
+  if (state.mapCardId) showMapCard(state.mapCardId);
 }
 
 function updateUserMarker(recenter) {
-  if (!state.map || !state.userMarker || !state.pos) {
-    if (state.map && recenter && !state.mapCentered) {
-      const destination = currentDestination();
-      state.map.setView(destination ? destination.center : [35.94, 14.38], destination ? destination.zoom : 10);
-      state.mapCentered = true;
-    }
-    return;
+  if (!state.map) return;
+  const destination = currentDestination();
+  const near = state.pos && destination && distanceMeters(state.pos.lat, state.pos.lng, destination.center[0], destination.center[1]) < 40000;
+  if (recenter && !state.mapCentered) {
+    if (near) state.map.setView([state.pos.lat, state.pos.lng], 15);
+    else state.map.setView(destination ? destination.center : [35.94, 14.38], destination ? destination.zoom : 10);
+    state.mapCentered = true;
   }
+  if (!state.pos || !state.userMarker || !state.map._loaded) return;
   const ll = [state.pos.lat, state.pos.lng];
   if (!state.map.hasLayer(state.userMarker)) state.userMarker.addTo(state.map);
   state.userMarker.setLatLng(ll);
-  if (recenter && !state.mapCentered) {
-    state.map.setView(ll, 15);
-    state.mapCentered = true;
-  }
+  if (state.userMarker._path) state.userMarker.bringToFront();
 }
 
 async function requestWake() {
@@ -903,8 +1011,11 @@ function navigateTo(id) {
 }
 
 function closeMap() {
+  const cardId = state.mapCardId;
+  state.mapCardId = null;
   state.view = state.mapReturn && state.mapReturn !== "map" ? state.mapReturn : "now";
   render();
+  if (cardId && state.speakingId === cardId && state.speechPaused) stopSpeech();
 }
 
 function focusOnMap(id) {
@@ -912,12 +1023,10 @@ function focusOnMap(id) {
   if (!place) return;
   if (state.view !== "map") state.mapReturn = state.view;
   closeSheet();
+  state.mapCardId = place.id;
+  state.mapFocus = { lat: place.lat, lng: place.lng, zoom: 17 };
   state.view = "map";
   render();
-  requestAnimationFrame(() => {
-    showMap();
-    if (state.map) state.map.setView([place.lat, place.lng], 17);
-  });
 }
 
 function resetMap() {
@@ -927,6 +1036,8 @@ function resetMap() {
     state.userMarker = null;
   }
   state.mapCentered = false;
+  state.markers = null;
+  state.selectedMarker = null;
 }
 
 function selectDestination(id) {
@@ -938,6 +1049,7 @@ function selectDestination(id) {
   state.island = "all";
   state.query = "";
   state.lockedId = null;
+  state.mapCardId = null;
   state.view = "now";
   resetMap();
   render();
@@ -951,6 +1063,7 @@ function clearDestination() {
   state.island = "all";
   state.query = "";
   state.lockedId = null;
+  state.mapCardId = null;
   state.view = "now";
   resetMap();
   render();

@@ -183,7 +183,7 @@ main {
   text-transform: uppercase;
 }
 
-.card h3, .place h3, .sheet-card h3 {
+.card h3, .place h3, .sheet-card h3, .map-card h3 {
   margin: 4px 0;
   font-family: Georgia, "Palatino Linotype", Palatino, serif;
   font-size: 28px;
@@ -273,7 +273,13 @@ main {
 .island.miasto { background: var(--sea-2); }
 .island.pamiec { background: #3d3a34; }
 
-.map-frame { position: relative; }
+.map-frame {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--card);
+}
 .map-close {
   position: absolute;
   z-index: 500;
@@ -290,13 +296,32 @@ main {
 }
 .map-wrap {
   height: calc(100dvh - 250px);
-  min-height: 320px;
-  border-radius: 18px;
+  min-height: 220px;
   overflow: hidden;
-  border: 1px solid var(--line);
 }
+.map-frame.has-card .map-wrap {
+  height: calc(100dvh - 560px);
+  min-height: 180px;
+}
+.map-card {
+  max-height: min(40dvh, 360px);
+  overflow: auto;
+  padding: 14px 16px 16px;
+  background: var(--card);
+  border-top: 1px solid var(--line);
+}
+.map-card[hidden] { display: none !important; }
+.map-card .row .secondary { margin-top: 0; }
 
 .leaflet-container { height: 100%; width: 100%; background: #e7dcc8; font: 14px/1.4 "Segoe UI", sans-serif; touch-action: none; }
+.leaflet-pane svg,
+.leaflet-pane svg :focus,
+.leaflet-pane svg :focus-visible,
+path.leaflet-interactive,
+path.leaflet-interactive:focus,
+path.leaflet-interactive:focus-visible {
+  outline: none !important;
+}
 
 .field { margin: 0 0 16px; }
 .field label { display: block; font-weight: 700; margin-bottom: 6px; }
@@ -317,25 +342,6 @@ main {
   background: rgba(243, 238, 230, 0.98);
   border-top: 1px solid var(--line);
   padding-bottom: env(safe-area-inset-bottom);
-}
-
-.player {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 10px 12px 0;
-}
-.player[hidden] { display: none !important; }
-.player p { margin: 0; flex: 1; }
-.player b { display: block; }
-.player span { color: var(--muted); font-size: 13px; }
-.player button, .icon-btn {
-  min-height: 44px;
-  border-radius: 12px;
-  border: 0;
-  background: var(--sea);
-  color: white;
-  padding: 8px 12px;
 }
 
 nav { display: grid; grid-template-columns: repeat(4, 1fr); }

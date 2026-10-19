@@ -1,6 +1,7 @@
 import { MORE_TEXT } from "./more-text.js";
 import { MORE_PLACES } from "./more-places.js";
 import { MALTA_MORE } from "./malta-more.js";
+import { MALTA_CULTURE } from "./malta-culture.js";
 
 const CORE = [
   {
@@ -788,4 +789,4 @@ Comino ma dziś hotel, kaplicę i prawie nikogo na stałe. Ścieżki między lag
 export const PLACES = CORE.map((place) => {
   const extra = MORE_TEXT[place.id];
   return extra ? { ...place, speech: `${place.speech}\n\n${extra}` } : place;
-}).concat(MORE_PLACES, MALTA_MORE);
+}).concat(MORE_PLACES, MALTA_MORE, MALTA_CULTURE);
