@@ -54,6 +54,10 @@ function loadSettings() {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY) || localStorage.getItem(LEGACY_SETTINGS_KEY);
     const saved = { ...defaults, ...JSON.parse(raw || "{}") };
+    saved.rate = Number(saved.rate);
+    if (!Number.isFinite(saved.rate)) saved.rate = defaults.rate;
+    saved.radiusScale = Number(saved.radiusScale);
+    if (!Number.isFinite(saved.radiusScale)) saved.radiusScale = defaults.radiusScale;
     if (saved.rate === 0.92) saved.rate = 1;
     return saved;
   } catch {
@@ -219,7 +223,11 @@ function renderStatus() {
 function renderNav() {
   document.querySelectorAll("nav button").forEach((button) => {
     const home = button.dataset.action === "change-destination";
-    const on = currentDestination() ? button.dataset.view === state.view : home;
+    const on = currentDestination()
+      ? button.dataset.view === state.view
+      : state.view === "settings"
+        ? button.dataset.view === "settings"
+        : home;
     button.classList.toggle("on", on);
   });
 }
@@ -252,13 +260,15 @@ function render() {
   const search = focus && focus.id === "search" ? { start: focus.selectionStart, end: focus.selectionEnd } : null;
   if (state.view !== "map") state.mapFocus = null;
   if (!currentDestination()) {
-    main.innerHTML = renderPicker();
+    main.innerHTML = state.view === "settings" ? renderSettings() : renderPicker();
+    if (state.view === "settings") main.scrollTop = 0;
     return;
   }
   if (state.view === "now") main.innerHTML = renderNow();
   else if (state.view === "list") main.innerHTML = renderList();
   else if (state.view === "map") main.innerHTML = renderMap();
   else main.innerHTML = renderSettings();
+  if (state.view === "settings") main.scrollTop = 0;
   if (search) {
     const field = document.getElementById("search");
     if (field) {
@@ -275,7 +285,9 @@ function renderBrand() {
   const sub = document.getElementById("brand-sub");
   const change = document.getElementById("change-destination");
   const name = destination ? destination.title : "Przewodnik na ucho";
+  const version = document.getElementById("brand-version");
   if (title) title.textContent = name;
+  if (version) version.hidden = Boolean(destination);
   if (sub) {
     sub.textContent = destination
       ? `${destination.subtitle} · ${placeCountLabel(destination.places.length)}`
@@ -422,6 +434,8 @@ function renderMap() {
 
 function renderSettings() {
   refreshVoices();
+  const rate = Number(settings.rate);
+  settings.rate = Number.isFinite(rate) ? rate : 1;
   const google = googlePolishVoice(state.voices);
   const autoName = google ? `${google.name} · ${google.lang}` : "polski głos z telefonu";
   const voiceOptions = [
@@ -1129,7 +1143,7 @@ function onChange(event) {
     return;
   }
   if (event.target.type === "checkbox") settings[key] = event.target.checked;
-  else if (key === "radiusScale") settings[key] = Number(event.target.value);
+  else if (key === "radiusScale" || key === "rate") settings[key] = Number(event.target.value);
   else settings[key] = event.target.value;
   saveSettings();
   if (key === "keepAwake") {

@@ -59,12 +59,25 @@ button { cursor: pointer; }
 
 .brand svg { width: 42px; height: 42px; flex: none; }
 
+.brand-line {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
 .brand h1 {
   margin: 0;
   font-family: Georgia, "Palatino Linotype", Palatino, serif;
   font-size: 26px;
   font-weight: 600;
   letter-spacing: -0.03em;
+}
+
+.brand-version {
+  font-size: 10px;
+  line-height: 1;
+  color: #d5c7ae;
+  font-weight: 500;
 }
 
 .brand p { margin: 1px 0 0; color: #d5c7ae; font-size: 13px; }
