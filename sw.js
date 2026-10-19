@@ -1,4 +1,4 @@
-const CACHE = "przewodnik-na-ucho-v39";
+const CACHE = "przewodnik-na-ucho-v40";
 const TILES = "przewodnik-na-ucho-tiles-v1";
 const ASSETS = [
   "./",
@@ -17,6 +17,8 @@ const ASSETS = [
   "./js/szczecin-more.js",
   "./js/szczecin-parks.js",
   "./js/destinations.js",
+  "./js/more-web.mjs",
+  "./js/more-palac.mjs",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

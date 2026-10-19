@@ -1,5 +1,6 @@
 import { DESTINATIONS } from "./destinations.js";
 import { chooseTarget, nearestPlace, formatDistance, canRepeat, distanceMeters } from "./engine.js";
+import { loadSupplement } from "./more-web.mjs";
 
 const SETTINGS_KEY = "przewodnik-na-ucho-settings";
 const SPOKEN_KEY = "przewodnik-na-ucho-spoken";
@@ -534,6 +535,28 @@ function renderMore(data, totalMs) {
   `;
 }
 
+function localServer() {
+  const host = location.hostname;
+  return host === "localhost" || host === "127.0.0.1";
+}
+
+async function fetchMore(place, destinationId) {
+  if (localServer()) {
+    try {
+      const response = await fetch("/api/wiecej", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: place.id, destination: destinationId }),
+      });
+      const data = await response.json();
+      if (response.ok) return data;
+    } catch {
+      /* bez lokalnego serwera strona pyta Wikipedię sama */
+    }
+  }
+  return loadSupplement(place, destinationId);
+}
+
 async function loadMore(id) {
   const place = placeById(id);
   const destination = currentDestination();
@@ -545,13 +568,7 @@ async function loadMore(id) {
   });
   const started = performance.now();
   try {
-    const response = await fetch("/api/wiecej", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: place.id, destination: destination.id }),
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Serwer nie oddał dopowiedzenia.");
+    const data = await fetchMore(place, destination.id);
     const extra = [data.history, data.visit].filter(Boolean).join("\n\n");
     state.moreFor = extra ? place.id : "";
     state.moreText = extra;
@@ -564,7 +581,7 @@ async function loadMore(id) {
   } catch (error) {
     const offline = !error || error.name === "TypeError" || error.name === "SyntaxError";
     const text = offline
-      ? "Nie udało się dociągnąć reszty. Otwórz przewodnik z localhost."
+      ? "Nie udało się dociągnąć reszty. Spróbuj jeszcze raz za chwilę."
       : `Nie udało się dociągnąć reszty. ${error.message}`;
     boxes.forEach((box) => {
       box.hidden = false;

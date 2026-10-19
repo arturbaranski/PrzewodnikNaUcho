@@ -72,12 +72,18 @@ function titleScore(name, title, city, area) {
   return score;
 }
 
+function requestHeaders() {
+  const headers = { "Accept-Language": "pl" };
+  if (typeof window === "undefined") headers["User-Agent"] = "przewodnik-na-ucho/1.0";
+  return headers;
+}
+
 async function wikiQuery(params) {
-  const url = `https://pl.wikipedia.org/w/api.php?${new URLSearchParams({ format: "json", ...params })}`;
+  const url = `https://pl.wikipedia.org/w/api.php?${new URLSearchParams({ format: "json", ...params, origin: "*" })}`;
   let wait = 700;
   for (let attempt = 0; attempt < 3; attempt++) {
     const response = await fetch(url, {
-      headers: { "User-Agent": "przewodnik-na-ucho/1.0", "Accept-Language": "pl" },
+      headers: requestHeaders(),
       signal: AbortSignal.timeout(8000),
     });
     if (response.status === 429 && attempt < 2) {
@@ -93,7 +99,7 @@ async function wikiQuery(params) {
 
 async function fetchText(url) {
   const response = await fetch(url, {
-    headers: { "User-Agent": "przewodnik-na-ucho/1.0", "Accept-Language": "pl" },
+    headers: requestHeaders(),
     signal: AbortSignal.timeout(8000),
   });
   if (!response.ok) throw new Error(String(response.status));
