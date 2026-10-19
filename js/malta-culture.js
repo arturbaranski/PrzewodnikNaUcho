@@ -479,4 +479,132 @@ Park i stadion są osobnym, większym terenem obok. Nie myl ich z tą uliczką w
 
 Kup, jeśli chcesz. Nie musisz. Zostań przy jednym palniku albo przy jednej poduszce do koronki, aż zobaczysz ruch, którego nie da się streścić na metce. Potem wyjdź na zewnątrz i popatrz w niebo. Było tu pełne silników. Dziś jest pełne tego, co wyspa umie zrobić ręką, gdy silniki odlecą.`,
   },
+  {
+    id: "merchants-street",
+    name: "Ulica Kupców",
+    area: "Valletta",
+    island: "malta",
+    lat: 35.8992387,
+    lng: 14.516099,
+    radius: 40,
+    speech: `Stoisz na Triq il-Merkanti, ulicy Kupców, równoległej do Republic Street i bliższej Wielkiego Portu. Obie należą do siatki, którą Francesco Laparelli narysował na grzbiecie po oblężeniu tysiąc pięćset sześćdziesiątego piątego roku. Długie ulice idą wzdłuż półwyspu. Poprzeczne spadają schodami do wody. Drewniane, zamknięte balkony, gallarije, wiszą nad chodnikiem jak osobne pokoje.
+
+Na tej samej ulicy stoi targ Is-Suq i kościół jezuitów. To osobne opowieści. Tutaj jesteś między nimi, tam gdzie ulica jest po prostu ulicą: sklep, brama, czyjś próg, dostawa z rana. Republic Street jest deptakiem o jedną przecznicę stąd. Ta bywa cichsza i dlatego lepiej widać na niej, jak miasto naprawdę mieszka.
+
+Balkon nad tobą jest czyimś oknem. Nie opieraj się o kratę i nie zaglądaj w górę tak, jakby to była wystawa. Rano ulicą przejeżdża towar. Zostaw miejsce przy krawężniku. Jeśli szukasz widoku na port, zejdź którąś z poprzecznych w stronę nabrzeża. Ta ulica sama do morza nie spada. Prowadzi cię wzdłuż miasta, aż sama zdecydujesz, w którą stronę zejść.
+
+Ciekawostka siatki jest w tym, że da się zgubić i odnaleźć w trzech minutach. Dwie długie ulice są kompasem. Kupców jest wschodnią. Republic Street jest zachodnią. Jak staniesz między nimi i wiesz, która jest która, Valletta przestaje być labiryntem. Zostaje miastem narysowanym od linijki, z balkonami, których linijka nie przewidziała.`,
+  },
+  {
+    id: "mdina-streets",
+    name: "Uliczki Mdiny",
+    area: "Mdina i Rabat",
+    island: "malta",
+    lat: 35.8857351,
+    lng: 14.4033654,
+    radius: 40,
+    speech: `Stoisz na Triq Villegaignon, głównej ulicy Mdiny. Od bramy idzie prawie prosto ku murom na północy. Po bokach odchodzą węższe zaułki, piaskowe, z pałacowymi bramami i z progami, na których ktoś naprawdę mieszka. Za bramą prawie nie jeżdżą samochody. Dlatego mówi się ciche miasto. Cisza jest regulaminem, nie nastrojem z folderu.
+
+Brama, katedra, dom rzymski i mury mają własne opowieści. Ta jest o przejściu między nimi. Idź środkiem, powoli. Zaułek, który wygląda na skrót, często kończy się czyimś dziedzińcem. Zawróć bez wchodzenia. Mdina jest mała. Zgubić się da się na pięć minut, nie na godzinę.
+
+W południe kamień grzeje. Cień jest w bramach i przy murze, tam gdzie ktoś go zostawił. Usiądź tylko tam, gdzie jest ławka, nie na schodach domu. Miasto wygląda na puste i jest zamieszkane. Różnicę słychać po zmroku, kiedy turyści schodzą do Rabatu, a w oknie zapala się jedno światło.
+
+Ciekawostka ulicy jest w prostocie, której wsie na Malcie nie mają. Villegaignon jest osią. Reszta jest labiryntem doklejonym do osi. Jeśli masz dziesięć minut, przejdź ją raz do muru i raz z powrotem, zaglądając w jeden zaułek. Drugi zostaw na później. Ciche miasto nie lubi, kiedy się je przebiega.`,
+  },
+  {
+    id: "triq-il-kastell",
+    name: "Ulica il-Kastell",
+    area: "Gozo",
+    island: "gozo",
+    lat: 36.0454845,
+    lng: 14.2383679,
+    radius: 40,
+    speech: `Stoisz na Triq il-Kastell w Victorii, na stromym podejściu pod bramę cytadeli. It-Tokk zostaje niżej, z kawiarniami i z targiem. Ta ulica jest już drogą pod mur. Kamienice schodzą tarasami, a chodnik, jeśli jest, nie wystarcza na dwóch ludzi i wózek. Dlatego idzie się wolno, nawet gdy nogi mają jeszcze siłę.
+
+Cytadela na górze jest osobną opowieścią: mury, katedra, widok na całą wyspę. Tutaj jesteś w dojściu, które mieszkańcy znają lepiej niż taras. Ktoś znosi zakupy w dół. Ktoś wciąga je w górę. Gozo pokazuje się w tym znoju bardziej niż na placu, gdzie można usiąść.
+
+W upał zrób postój w cieniu, zanim wejdziesz w bramę. Wody nie kupisz w połowie wzniesienia tak łatwo jak na It-Tokk. Zjedź na bok, kiedy jedzie auto. Ulica jest wąska i jest czyimś dojazdem, nie tylko ścieżką do twierdzy.
+
+Ciekawostka podejścia jest w kolejności. Najpierw słyszysz miasto na dole. Potem zostaje oddech i mur. Widok przychodzi ostatni, już za bramą. Jeśli odwrócisz się w połowie, zobaczysz dachy Victorii, nie morze. Morze jest nagrodą za dokończenie ulicy. Nie bierz go z okna autokaru pod cytadelą. Wejdź tędy.`,
+  },
+  {
+    id: "collachio",
+    name: "Collachio w Birgu",
+    area: "Trzy Miasta",
+    island: "malta",
+    lat: 35.8884522,
+    lng: 14.5224729,
+    radius: 30,
+    speech: `Stoisz w Collachio, starej dzielnicy Birgu, za parafią i za placem Zwycięstwa. Zanim powstała Valletta, kawalerowie trzymali tu swoje oberże. Zostały wąskie ulice, progi i drzwi, przy których ludzie stawiają donice. Kołatki na tych drzwiach są miejscową dumą. Każde drzwi mają własny dźwięk i własny wzór. Triq it-Tromba jest jedną z takich uliczek. Szukaj jej w tym splocie, nie na nabrzeżu.
+
+Plac, pałac inkwizytora i kościół świętego Wawrzyńca są obok i mają własne opowieści. Collachio jest tym, co zostaje, kiedy zejdziesz z placu w cień. Tu mniej się fotografuje fort, a bardziej czyjś próg. To jest uczciwszy Birgu, pod warunkiem że próg zostawisz w spokoju.
+
+Nie wchodź na dziedziniec, który wygląda na otwarty. Otwarta furtka bywa wietrzeniem, nie zaproszeniem. Nie stukaj kołatką dla sprawdzenia dźwięku. Mieszkaniec słyszy ją jako gościa. Zdjęcie drzwi zrób z ulicy, bez opierania się o skrzydło.
+
+Ciekawostka dzielnicy jest w skali. Wielkie oblężenie opowiada się zwykle z fortu świętego Anioła. Tu opowiada się z szerokości ulicy, w której dwie osoby muszą się minąć bokiem. Rycerze, którzy bronili tego miasta, chodzili właśnie takimi przejściami, z donicą albo bez. Zostań, aż minie jeden miejscowy i nie będzie na ciebie patrzył. Wtedy jesteś w Birgu, nie na planie zdjęcia.`,
+  },
+  {
+    id: "taqali-farmers",
+    name: "Targ rolniczy Ta' Qali",
+    area: "Centrum",
+    island: "malta",
+    lat: 35.894506,
+    lng: 14.425662,
+    radius: 50,
+    speech: `Stoisz przy targu rolniczym na Ta' Qali, przy Triq il-Pitkali. We wtorek i w sobotę od rana rolnik sprzedaje tu wprost tobie. W skrzynkach są warzywa i owoce z wyspy, jaja, ġbejniet, miód, oliwa, czasem ryba i mięso. Towar ma być tutejszy. Dlatego koszyk wygląda inaczej niż przy obwodnicy, w sklepie, który wozi jedzenie statkiem.
+
+Od piętnastego września dwa tysiące dwudziestego szóstego roku stoiska stoją tymczasowo obok Pitkalii. Trwa budowa nowej hali. Jedź za tablicami, nie za starą pamięcią o Triq San Ġakbu. Pitkalia obok jest hurtownią: tu sklepy i straganiarze biorą towar, który potem rozchodzi się po wsiach. Twoje stoisko w te dwa poranki jest krótszą drogą, od pola do torby.
+
+Park Ta' Qali i wioska rzemieślników są w tej samej okolicy i mają własne opowieści. Tu jesteś po jedzenie. Przyjdź wcześnie, jeśli chcesz wybór. Pod koniec dnia zostają skrzynki, które rolnik woli sprzedać, niż zabrać z powrotem. Weź własną torbę. Gotówka nadal bywa prostsza niż karta. Nie przepychaj się przy wadze. Ludzie z Attard i z Mosty robią tu zakupy na tydzień.
+
+Jak brama hurtowni jest dla zarejestrowanych, zostań przy straganach. Jedzenie, po które przyjechałeś, leży właśnie tam. W inne dni tygodnia plac milczy. Wtedy jedź do parku albo do warsztatów. Targ ma swój kalendarz i nie udaje, że jest codziennie.`,
+  },
+  {
+    id: "kottonera-market",
+    name: "Targ rolniczy Kottonery",
+    area: "Trzy Miasta",
+    island: "malta",
+    lat: 35.8845814,
+    lng: 14.5241557,
+    radius: 40,
+    speech: `Stoisz przy targu rolniczym Kottonery, na Triq il-Ġublew tal-Fidda, między Birgu a Bormlą. To drugi urzędowy targ, na którym kupujesz wprost od rolnika. Sobota rano. Warzywa, owoce, jaja, ser, miód, czasem ryba. Południe wyspy ma tu swój koszyk, bliżej domu niż Ta' Qali.
+
+Do południa stragany się zwijają i zostaje zwykła ulica. Przyjdź z torbą, zanim skrzynki wrócą na samochód. Plac Zwycięstwa, Collachio i pałac inkwizytora są obok, na później, kiedy zakupy już zrobione. Niedzielne stoiska z rzeczami używanymi pod fortyfikacjami to inny dzień i inny towar. Tu jesteś po to, co urosło w tym tygodniu.
+
+Samochód postaw tak, żeby nie zatkać przejazdu dla dostawy. Ulica obsługuje Birgu i Bormlę także wtedy, gdy stoi na niej waga. Przepuść kogoś z pełną skrzynką. To jego praca, nie przeszkoda na zdjęciu.
+
+Ciekawostka jest w podziale wyspy. Ta' Qali zbiera środek i północ. Kottonera zbiera Trzy Miasta i południe. Ten sam przepis: rolnik, waga, rozmowa. Inny widok za plecami. Tu za straganem jest port. Weź zakupy i zejdź później na nabrzeże, kiedy ulica znowu jest ulicą.`,
+  },
+  {
+    id: "pixkerija",
+    name: "Pixkerija",
+    area: "Centrum",
+    island: "malta",
+    lat: 35.876366,
+    lng: 14.497753,
+    radius: 45,
+    speech: `Stoisz przy Pixkerii w Marsie, na Triq il-Biċċerija. To główna hala rybna Malty. Połów wpływa tu o różnych godzinach, zależnie od morza. Rano, około czwartej, dzwon otwiera aukcję. Skrzynki są ważone, opisane i sprzedawane handlarzom, sklepom i restauracjom. Większość tego ranka znika z hali w ciągu godziny.
+
+Zwykły klient może kupić rybę bezpośrednio, po rejestracji w urzędzie do spraw żywności. Sprzedaż dla takich osób jest we wtorek, w czwartek i w sobotę, bardzo wcześnie, mniej więcej od piątej do siódmej, dopóki starczy. W południe nie zastaniesz tu straganu. Marsaxlokk w niedzielę jest końcem tej drogi, przy kei, już z ceną dla przechodnia. Pixkerija jest początkiem.
+
+Nie wchodź na salę aukcyjną bez sprawy. To praca. Z zewnątrz widać halę i ruch samochodów, które wywożą skrzynki, zanim miasto wstanie. Zostaw im przejazd. Aparat może poczekać.
+
+Ciekawostka hali jest w godzinie. Obiad na wyspie je się późno. Ten budynek pracuje, kiedy latarnie jeszcze świecą. Jak chcesz zobaczyć połów naprawdę, ustaw budzik i miej przy sobie dokument do rejestracji. Jak chcesz usiąść przy rybim talerzu, jedź później do Marsaxlokk. Tu zrozumiesz tylko, skąd ten talerz się bierze.`,
+  },
+  {
+    id: "rabat-market",
+    name: "Targ w Rabacie",
+    area: "Mdina i Rabat",
+    island: "malta",
+    lat: 35.8826273,
+    lng: 14.3979359,
+    radius: 40,
+    speech: `Stoisz na Triq Santa Rita w Rabacie, przy niedzielnym monti. W niedzielę rano ulica zamienia się w targ. Są warzywa, ryba, pieczywo i słoiki, a obok rzeczy do domu, których nie szukałeś i które i tak oglądasz. Ludzie schodzą tu po mszy. To zakupy sąsiadów, nie festyn pod autokar.
+
+Grota świętego Pawła i katakumby są obok i mają własne opowieści. Ta ulica jest o koszyku. Mdina za bramą jest cicha i kamienna. Rabat w niedzielę jest głośniejszy i pachnie tym, co akurat leży w skrzynce: koperkiem, oliwką albo rybą.
+
+W tygodniu ulica jest zwykła. Nie oczekuj straganów w środę. Przyjdź w niedzielę przed południem, z torbą i z gotówką. Nie tarasuj wózkiem najwęższego przejścia. Straganiarz musi donieść kolejną skrzynkę, a starszy sąsiad musi przejść z siatką.
+
+Ciekawostka Rabatu jest w kolejności dnia. Najpierw kościół, potem waga, potem kawa. Jak przyjdziesz po południu, zostaną puste kartony i zwinięte stelaże. Zostań rano. Mdina poczeka. Targ powie ci wcześniej, czym wyspa je w tym tygodniu.`,
+  },
 ];
